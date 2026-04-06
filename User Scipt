@@ -1,0 +1,48 @@
+#! bin/bash
+# Update the System
+sudo yum update -y
+
+# Adding the Jenkins Repository
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/rpm-stable/jenkins.repo
+
+# Import the Repository GPG Key
+sudo rpm --import https://pkg.jenkins.io/rpm-stable/jenkins.io-2026.key
+sudo yum upgrade
+
+# Java Installation
+sudo yum install java-21-amazon-corretto -y
+sudo yum install jenkins -y
+
+#Start the Jenkins Service
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+
+
+# Flaskapp Service file
+# This is to be created under {/etc/sytemd/ssytem/flaskapp.service}
+# Run the other complimenting command 
+ # systemctl daemon-reload
+ # systemctl enable flaskapp.service
+ # systemctl start flaskapp.service
+ # #
+
+# Provide Description 
+[Unit]
+Description=Flask app
+#service will only start after the network is initialized
+After=network.target
+
+[Service]
+#under which service account the service will run
+User=ec2-user
+Group=ec2-user
+#The working directory for the Flask app and where it will execute
+WorkingDirectory=/home/ec2-user/app/
+#Environment sets the PATH env variable to include the path to the bin directory of the virtual environment
+Environment="PATH=/home/ec2-user/app/venv/bin"
+#Used to Start the Application
+ExecStart=/home/ec2-user/app/venv/bin/python3 /home/ec2-user/app/app.py
+
+[Install]
+#standard systemd target for running multiple users in a non GUI / Servers will start while reaching the specific target
+WantedBy=multi-user.target
